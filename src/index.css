@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-surface text-ink-900 dark:bg-surface-dark dark:text-slate-100 font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.500');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-card dark:bg-surface-darkCard rounded-2xl border border-black/5 dark:border-white/5 shadow-card;
+  }
+  .area-rail {
+    @apply border-l-[3px] pl-3;
+  }
+  .kpi-number {
+    @apply font-mono text-3xl font-semibold tracking-tight;
+  }
+}
+
+/* FullCalendar minimal theme overrides to match the design system */
+.fc {
+  --fc-border-color: theme('colors.black/8');
+  --fc-today-bg-color: theme('colors.brand.50');
+  --fc-button-bg-color: theme('colors.brand.600');
+  --fc-button-border-color: theme('colors.brand.600');
+  --fc-button-hover-bg-color: theme('colors.brand.700');
+  --fc-button-active-bg-color: theme('colors.brand.800');
+  font-family: 'Inter', sans-serif;
+}
+.dark .fc {
+  --fc-border-color: rgba(255,255,255,0.08);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255,255,255,0.03);
+  color: #E2E8F0;
+}
+
+/* --- FONTE DO LOGOTIPO CORRIGIDA E FECHADA --- */
+/* --- FONTE DO LOGOTIPO ATUALIZADA PARA OTF --- */
+/* --- CAMINHO CORRIGIDO PARA A PASTA FONT (SINGULAR) --- */
+@font-face {
+  font-family: 'Conthrax';
+  src: url('/font/Conthrax-SemiBold.otf') format('opentype'); /* Mudado de /fonts/ para /font/ */
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

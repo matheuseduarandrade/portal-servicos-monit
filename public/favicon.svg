@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Top circle - dark blue -->
+  <circle cx="32" cy="11" r="9" fill="#2B5EA7"/>
+  <!-- Bottom-left circle - medium blue -->
+  <circle cx="11" cy="48" r="9" fill="#5A84B8" opacity="0.85"/>
+  <!-- Bottom-right circle - light blue -->
+  <circle cx="53" cy="48" r="9" fill="#7BAAD4" opacity="0.78"/>
+  <!-- Small dot - bottom right accent -->
+  <circle cx="62" cy="40" r="5.5" fill="#4A7FC1" opacity="0.52"/>
+  <!-- Connecting lines -->
+  <line x1="32" y1="20" x2="13" y2="40" stroke="#2B5EA7" strokeWidth="3.2" strokeLinecap="round"/>
+  <line x1="32" y1="20" x2="51" y2="40" stroke="#2B5EA7" strokeWidth="3.2" strokeLinecap="round"/>
+  <line x1="19" y1="48" x2="44" y2="48" stroke="#5A84B8" strokeWidth="2.8" strokeLinecap="round"/>
+</svg>

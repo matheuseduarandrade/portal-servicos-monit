@@ -1,0 +1,105 @@
+/* Container */
+.fc {
+  font-family: Inter, sans-serif;
+}
+
+/* Cabeçalho */
+.fc .fc-toolbar {
+  padding: 20px;
+  margin-bottom: 10px !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.4rem !important;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Botões */
+.fc .fc-button {
+  background: white !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 8px 14px !important;
+  transition: all .2s;
+  box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.fc .fc-button-active {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+/* Dias */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #f8fafc !important;
+}
+
+.fc-daygrid-day {
+  transition: all .2s ease;
+}
+
+.fc-daygrid-day:hover {
+  background: #f8fafc;
+}
+
+/* Hoje */
+.fc-day-today {
+  background: #eff6ff !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: #1658e5;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px;
+}
+
+/* Eventos */
+.fc-event {
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 4px 8px !important;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  transition: all .2s ease;
+}
+
+.fc-event:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+
+/* Cabeçalho dias */
+.fc-col-header-cell {
+  background: #f8fafc;
+  height: 48px;
+}
+
+.fc-col-header-cell-cushion {
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+.fc-theme-standard .fc-scrollgrid {
+  border: none !important;
+}
+
+.fc-theme-standard {
+  border: none !important;
+}
