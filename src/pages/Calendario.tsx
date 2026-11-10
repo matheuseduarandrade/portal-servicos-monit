@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft, ChevronRight, Plus, X, Loader2,
@@ -293,6 +294,20 @@ export default function Calendario() {
   function dataStr(dia: number) {
     return `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
   }
+
+  // vindo da busca: vai ao mês do evento e abre os detalhes
+  const [params] = useSearchParams()
+  const abriu = useRef<string | null>(null)
+  useEffect(() => {
+    const alvo = params.get('evento')
+    if (!alvo || abriu.current === alvo) return
+    const ev = eventos.find((e) => e.id === alvo)
+    if (!ev) return
+    abriu.current = alvo
+    const [a, m] = ev.inicio.slice(0, 10).split('-').map(Number)
+    if (a && m) { setAno(a); setMes(m - 1) }
+    setEventoAberto(ev)
+  }, [params, eventos])
 
   const isHoje = (dia: number) =>
     dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear()

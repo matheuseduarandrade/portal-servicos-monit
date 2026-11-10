@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as Tabs from '@radix-ui/react-tabs'
 import {
@@ -695,7 +696,8 @@ export default function Colaboradores() {
   const admin = canManage(user)
   const qc = useQueryClient()
 
-  const [busca, setBusca] = useState('')
+  const [params] = useSearchParams()
+  const [busca, setBusca] = useState(params.get('q') ?? '')
   const [equipeAberta, setEquipeAberta] = useState<Colaborador | null>(null) // Controla o Modal da Equipe
   const [fichaAberta, setFichaAberta] = useState<Colaborador | null>(null)
   const [editandoFicha, setEditandoFicha] = useState<Colaborador | null>(null)

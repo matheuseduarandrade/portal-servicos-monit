@@ -1,7 +1,8 @@
-import { Search, Moon, Sun, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { GlobalSearch } from '@/components/search/GlobalSearch'
 
 export function Topbar() {
   const { theme, toggleTheme } = useTheme()
@@ -17,13 +18,7 @@ export function Topbar() {
 
   return (
     <header className="h-16 sticky top-0 z-30 flex items-center gap-4 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-surface-darkCard/80 backdrop-blur px-6">
-      <div className="relative flex-1 max-w-md">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          placeholder="Buscar sistemas, manuais, projetos..."
-          className="w-full rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 pl-9 pr-3 py-2 text-sm text-ink-900 dark:text-white placeholder:text-slate-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-        />
-      </div>
+      <GlobalSearch />
 
       <div className="flex items-center gap-2 ml-auto">
         <button

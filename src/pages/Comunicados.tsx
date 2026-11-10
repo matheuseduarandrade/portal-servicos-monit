@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, Loader2, AlertTriangle, Info, AlertCircle, Megaphone } from 'lucide-react'
 import { PageHeader, Card, Button, Input, Badge } from '@/components/ui/primitives'
@@ -61,6 +62,19 @@ export default function Comunicados() {
     return (ordem[a.prioridade] ?? 3) - (ordem[b.prioridade] ?? 3)
   })
 
+  // vindo da busca: rola até o comunicado e o destaca
+  const [params] = useSearchParams()
+  const [pisca, setPisca] = useState<string | null>(null)
+  const feito = useRef<string | null>(null)
+  useEffect(() => {
+    const alvo = params.get('destaque')
+    if (!alvo || feito.current === alvo || !comunicados.some((c) => c.id === alvo)) return
+    feito.current = alvo
+    setPisca(alvo)
+    setTimeout(() => document.getElementById('com-' + alvo)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200)
+    setTimeout(() => setPisca(null), 5000)
+  }, [params, comunicados])
+
   return (
     <div>
       <PageHeader
@@ -107,7 +121,7 @@ export default function Comunicados() {
             const meta = PRIO_STYLE[c.prioridade] ?? PRIO_STYLE['Informativo']
             const Icon = meta.icon
             return (
-              <div key={c.id} className={`relative rounded-xl p-4 ${meta.bg} group`}>
+              <div key={c.id} id={`com-${c.id}`} className={`relative rounded-xl p-4 ${meta.bg} group transition-all ${pisca === c.id ? 'ring-2 ring-yellow-400' : ''}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="mt-0.5 flex-shrink-0">

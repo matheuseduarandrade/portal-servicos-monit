@@ -241,12 +241,12 @@ export function DocForm({
 }
 
 // ── Tab de Homologações ───────────────────────────────────────────────────────
-export function HomologacoesTab() {
+export function HomologacoesTab({ buscaInicial = '' }: { buscaInicial?: string }) {
   const { user } = useAuth()
   const admin = canManage(user)
   const qc = useQueryClient()
 
-  const [busca, setBusca] = useState('')
+  const [busca, setBusca] = useState(buscaInicial)
   const [catFiltro, setCatFiltro] = useState('Todos')
   const [aberto, setAberto] = useState<DocBiblioteca | null>(null)
   const [editando, setEditando] = useState<Partial<DocBiblioteca> | null>(null)

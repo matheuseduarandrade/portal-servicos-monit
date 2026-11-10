@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Plus, Pencil, Trash2, Loader2, FileText, MessageSquare, BookOpen, ChevronRight, BookMarked, Trophy, ExternalLink } from 'lucide-react'
 import { PageHeader, Card, Badge, Input, Button } from '@/components/ui/primitives'
@@ -33,8 +33,9 @@ export default function Forum() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const [aba, setAba] = useState('Todos')
-  const [busca, setBusca] = useState('')
+  const [params] = useSearchParams()
+  const [aba, setAba] = useState(params.get('aba') ?? 'Todos')
+  const [busca, setBusca] = useState(params.get('aba') === 'Homologações' ? '' : (params.get('q') ?? ''))
   const [editando, setEditando] = useState<ManualForum | null>(null)
   const [adicionando, setAdicionando] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<ManualForum | null>(null)
@@ -100,7 +101,7 @@ export default function Forum() {
       </div>
 
       {aba === 'Homologações' ? (
-        <HomologacoesTab />
+        <HomologacoesTab buscaInicial={params.get('q') ?? ''} />
       ) : (
         <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
           {/* ── Lista de manuais ── */}

@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, Clock3, LockKeyhole, Radio, Trophy, Users, XCircle } from 'lucide-react'
 import { Button, Card, Input } from '@/components/ui/primitives'
 import { entrarSalaLive, estadoParticipanteLive, responderSalaLive } from '@/services/quizLive'
 
 export default function QuizLiveParticipant() {
-  const { codigo = '' } = useParams()
+  const { codigo: codigoUrl = '' } = useParams()
+  const navigate = useNavigate()
   const qc = useQueryClient()
-  const storageKey = `portal-quizlive:${codigo.toUpperCase()}`
+  // A senha de acesso é o código da sala: vem pronta se o link a trouxer; senão o participante digita.
+  const [senha, setSenha] = useState(codigoUrl.toUpperCase())
+  const [codigoSala, setCodigoSala] = useState(codigoUrl.toUpperCase())
+  const codigo = codigoUrl ? codigoUrl.toUpperCase() : codigoSala
+  const storageKey = `portal-quizlive:${codigo}`
   const [nome, setNome] = useState('')
   const [token, setToken] = useState('')
   const [erro, setErro] = useState('')
@@ -17,8 +22,14 @@ export default function QuizLiveParticipant() {
   useEffect(() => { setToken(localStorage.getItem(storageKey) || '') }, [storageKey])
   const state = useQuery({ queryKey: ['quizlive-participante', codigo, token], queryFn: () => estadoParticipanteLive(codigo, token), enabled: !!token, refetchInterval: 2500, retry: false })
   const join = useMutation({
-    mutationFn: () => entrarSalaLive(codigo, nome),
-    onSuccess: result => { localStorage.setItem(storageKey, result.token); setToken(result.token); setErro(''); qc.invalidateQueries({ queryKey: ['quizlive-participante', codigo] }) },
+    mutationFn: () => entrarSalaLive(senha.trim().toUpperCase(), nome.trim().replace(/\s+/g, ' ')),
+    onSuccess: result => {
+      const sala = senha.trim().toUpperCase()
+      localStorage.setItem(`portal-quizlive:${sala}`, result.token)
+      setCodigoSala(sala); setToken(result.token); setErro('')
+      if (!codigoUrl) navigate(`/quiz-live/participar/${sala}`, { replace: true })   // o link passa a identificar a sala (atualizar a página não pede tudo de novo)
+      qc.invalidateQueries({ queryKey: ['quizlive-participante', sala] })
+    },
     onError: e => setErro(e instanceof Error ? e.message : 'Não foi possível entrar na sala.'),
   })
   const answer = useMutation({
@@ -32,6 +43,16 @@ export default function QuizLiveParticipant() {
   const denied = errorCode === 'FORBIDDEN'
   const invalid = state.isError && ['UNAUTHENTICATED', 'NOT_FOUND'].includes(errorCode || '')
 
+  function solicitarEntrada() {
+    const nomeLimpo = nome.trim().replace(/\s+/g, ' ')
+    const senhaLimpa = senha.trim().toUpperCase()
+    if (nomeLimpo.length < 2) { setErro('Digite o seu nome.'); return }
+    if (!senhaLimpa) { setErro('Digite a senha de acesso.'); return }
+    if (nomeLimpo.toUpperCase() === senhaLimpa) { setErro('Digite o seu nome no campo "Seu nome". A senha de acesso vai no outro campo.'); return }
+    setErro('')
+    join.mutate()
+  }
+
   function submitAnswer(option: number) {
     if (!data?.pergunta || data.minha_resposta || submitting) return
     setSubmitting(true)
@@ -41,7 +62,7 @@ export default function QuizLiveParticipant() {
   if (state.isError && !closed && !denied && !invalid) return <Shell><XCircle className="mx-auto text-rose-500" size={38}/><h1 className="text-xl font-semibold mt-3">Falha na conexão</h1><p className="text-sm text-slate-500 mt-2">{state.error instanceof Error ? state.error.message : 'Não foi possível atualizar a sala.'}</p><Button className="w-full justify-center mt-4" onClick={() => state.refetch()}>Tentar novamente</Button></Shell>
   if (closed) return <Shell><LockKeyhole className="mx-auto text-slate-400" size={38}/><h1 className="text-xl font-semibold mt-3">Sala encerrada</h1><p className="text-sm text-slate-500 mt-2">Esta partida foi encerrada pelo administrador. O link não está mais ativo.</p></Shell>
   if (denied) return <Shell><XCircle className="mx-auto text-rose-500" size={38}/><h1 className="text-xl font-semibold mt-3">Acesso não aprovado</h1><p className="text-sm text-slate-500 mt-2">Sua solicitação foi recusada ou seu acesso foi bloqueado.</p></Shell>
-  if (!token || invalid) return <Shell><Radio size={34} className="mx-auto text-brand-600"/><h1 className="text-xl font-semibold mt-3">Entrar no Quiz Live</h1><p className="text-sm text-slate-500 mt-1">Código da sala: <strong>{codigo.toUpperCase()}</strong></p>{invalid && <p className="text-sm text-rose-500 mt-3">{state.error instanceof Error ? state.error.message : 'Não foi possível validar seu acesso.'}</p>}<form className="mt-5 space-y-3" onSubmit={e => { e.preventDefault(); join.mutate() }}><Input autoFocus value={nome} onChange={e => setNome(e.target.value)} placeholder="Digite seu nome" maxLength={60}/><Button className="w-full justify-center" type="submit" disabled={!nome.trim() || join.isPending}>{join.isPending ? 'Solicitando entrada...' : 'Solicitar entrada'}</Button></form>{erro && <p className="text-sm text-rose-500 mt-3">{erro}</p>}<p className="text-[11px] text-slate-400 mt-4">Você precisará aguardar a aprovação do administrador.</p></Shell>
+  if (!token || invalid) return <Shell><Radio size={34} className="mx-auto text-brand-600"/><h1 className="text-xl font-semibold mt-3">Entrar no Quiz Live</h1><p className="text-sm text-slate-500 mt-1">Informe seu nome e a senha de acesso da sala.</p>{invalid && <p className="text-sm text-rose-500 mt-3">{state.error instanceof Error ? state.error.message : 'Não foi possível validar seu acesso.'}</p>}<form className="mt-5 space-y-3 text-left" onSubmit={e => { e.preventDefault(); solicitarEntrada() }}><div><label className="block text-xs font-medium text-slate-500 mb-1">Seu nome</label><Input autoFocus value={nome} onChange={e => setNome(e.target.value)} placeholder="Digite seu nome" maxLength={60} autoComplete="name"/></div><div><label className="block text-xs font-medium text-slate-500 mb-1">Senha de acesso</label><Input value={senha} onChange={e => setSenha(e.target.value.toUpperCase())} placeholder="Senha informada pelo administrador" maxLength={16} autoComplete="off" autoCapitalize="characters" spellCheck={false}/></div><Button className="w-full justify-center" type="submit" disabled={!nome.trim() || !senha.trim() || join.isPending}>{join.isPending ? 'Solicitando entrada...' : 'Solicitar entrada'}</Button></form>{erro && <p className="text-sm text-rose-500 mt-3">{erro}</p>}<p className="text-[11px] text-slate-400 mt-4">Você precisará aguardar a aprovação do administrador.</p></Shell>
   if (state.isLoading || !data) return <Shell><div className="animate-pulse text-sm text-slate-400">Conectando à sala...</div></Shell>
 
   const status = data.sala.status

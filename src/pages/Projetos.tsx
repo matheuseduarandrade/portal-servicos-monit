@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Plus, Pencil, Trash2, ChevronDown, ChevronUp, FolderKanban } from 'lucide-react'
 import { PageHeader, Card, Badge, Kpi, Button, Input } from '@/components/ui/primitives'
@@ -34,6 +35,19 @@ export default function Projetos() {
 
   const { data: projetos = [], isLoading, isError, error } = useQuery({ queryKey: ['projetos'], queryFn: fetchProjetos })
   const { data: colaboradores = [] } = useQuery({ queryKey: ['colaboradores'], queryFn: () => fetchColaboradores(), enabled: admin })
+
+  // vindo da busca: rola até o projeto e o destaca por alguns segundos
+  const [params] = useSearchParams()
+  const [pisca, setPisca] = useState<string | null>(null)
+  const feito = useRef<string | null>(null)
+  useEffect(() => {
+    const alvo = params.get('destaque')
+    if (!alvo || feito.current === alvo || !projetos.some((p) => p.id === alvo)) return
+    feito.current = alvo
+    setPisca(alvo)
+    setTimeout(() => document.getElementById('proj-' + alvo)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200)
+    setTimeout(() => setPisca(null), 5000)
+  }, [params, projetos])
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['projetos'] })
   const fechar = () => { setEditando(null); setAdicionando(false); setErro(null) }
@@ -127,7 +141,7 @@ export default function Projetos() {
             </thead>
             <tbody>
               {ordenados.map((p) => (
-                <tr key={p.id} className="border-b border-black/5 dark:border-white/5 last:border-0 group">
+                <tr key={p.id} id={`proj-${p.id}`} className={`border-b border-black/5 dark:border-white/5 last:border-0 group transition-colors ${pisca === p.id ? 'bg-yellow-50 dark:bg-yellow-500/10' : ''}`}>
                   <td className="py-2.5 pr-4 font-medium text-ink-900 dark:text-white">{p.nome}</td>
                   <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400">
                     {p.responsavel_planejamento || <span className="text-slate-300 dark:text-slate-600 italic text-xs">não definido</span>}

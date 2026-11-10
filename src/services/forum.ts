@@ -1,5 +1,7 @@
 import { call } from './api'
 
+import type { FotoResumo } from './midia'
+
 export interface AutorForum { id: string; nome: string; foto_url: string | null }
 
 export interface ManualForum {
@@ -31,6 +33,7 @@ export interface ComentarioForum {
   curtidas: number
   curtido_por_mim: boolean
   pode_excluir: boolean
+  fotos: FotoResumo[]
   respostas?: ComentarioForum[]
 }
 
@@ -51,8 +54,10 @@ export const fetchContribuidores = () => call<Contribuidor[]>('forum.contribuido
 export const fetchComentarios = (manual_id: string, ordem: OrdemComentarios) =>
   call<ComentarioForum[]>('forum.comentarios', { manual_id, ordem })
 
-export const comentar = (manual_id: string, texto: string, parent_id?: string) =>
-  call<ComentarioForum>('forum.comentar', { manual_id, texto, parent_id })
+export interface FotoComentario { dados: string; thumb: string; largura: number; altura: number }
+
+export const comentar = (manual_id: string, texto: string, parent_id?: string, fotos?: FotoComentario[]) =>
+  call<ComentarioForum>('forum.comentar', { manual_id, texto, parent_id, fotos } as never)
 
 export const curtir = (comentario_id: string) =>
   call<{ curtido: boolean; curtidas: number }>('forum.curtir', { comentario_id })

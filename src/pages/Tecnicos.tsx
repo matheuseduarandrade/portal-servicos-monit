@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Plus, Pencil, Trash2, Loader2, UserCheck, UserX } from 'lucide-react'
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
@@ -27,7 +28,8 @@ export default function Tecnicos() {
   const admin = canManage(user)
   const qc = useQueryClient()
 
-  const [busca, setBusca] = useState('')
+  const [params] = useSearchParams()
+  const [busca, setBusca] = useState(params.get('q') ?? '')
   const [estado, setEstado] = useState('Todos')
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativos' | 'inativos'>('todos')
   const [geoData, setGeoData] = useState<any>(null)

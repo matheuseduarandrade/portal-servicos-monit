@@ -21,6 +21,7 @@ import Quiz from '@/pages/Quiz'
 import QuizRealizar from '@/pages/QuizRealizar'
 import QuizAdmin from '@/pages/QuizAdmin'
 import ValidarCertificado from '@/pages/ValidarCertificado'
+import Busca from '@/pages/Busca'
 import QuizLive from '@/pages/QuizLive'
 import QuizLiveHost from '@/pages/QuizLiveHost'
 import QuizLiveParticipant from '@/pages/QuizLiveParticipant'
@@ -38,7 +39,7 @@ export default function App() {
               <Route path="/validar" element={<ValidarCertificado />} />
               <Route path="/validar/:codigo" element={<ValidarCertificado />} />
               {/* Link público: participantes do Quiz Live não precisam de login no Portal. */}
-              <Route path="/quiz-live/participar/:codigo" element={<QuizLiveParticipant />} />
+              <Route path="/quiz-live/participar/:codigo?" element={<QuizLiveParticipant />} />
               <Route
                 element={
                   <RequireAuth>
@@ -56,6 +57,7 @@ export default function App() {
                 <Route path="/calendario" element={<Calendario />} />
                 <Route path="/comunicados" element={<Comunicados />} />
                 <Route path="/quiz" element={<Quiz />} />
+                <Route path="/busca" element={<Busca />} />
                 <Route path="/quiz-live" element={<RequireAdmin><QuizLive /></RequireAdmin>} />
                 <Route path="/quiz-live/sala/:id" element={<RequireAdmin><QuizLiveHost /></RequireAdmin>} />
                 <Route path="/quiz/fazer/:trilhaId/:nivel" element={<QuizRealizar />} />

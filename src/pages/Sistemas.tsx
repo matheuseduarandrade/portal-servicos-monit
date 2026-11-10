@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookOpen, Plus, Pencil, Trash2, Boxes, Loader2, MessageSquare } from 'lucide-react'
 import { PageHeader, Card, Badge, Button, Input } from '@/components/ui/primitives'
@@ -24,6 +24,17 @@ export default function Sistemas() {
   const [erro, setErro] = useState<string | null>(null)
 
   const { data: sistemas = [], isLoading, isError } = useQuery({ queryKey: ['sistemas'], queryFn: fetchSistemas })
+
+  // vindo da busca: abre o sistema indicado
+  const [params] = useSearchParams()
+  const abriu = useRef<string | null>(null)
+  useEffect(() => {
+    const alvo = params.get('abrir')
+    if (alvo && abriu.current !== alvo && sistemas.length) {
+      const s = sistemas.find((x) => x.id === alvo)
+      if (s) { abriu.current = alvo; setSelected(s) }
+    }
+  }, [params, sistemas])
   const { data: manuais = [] } = useQuery({
     queryKey: ['biblioteca-manuais-todos'],
     queryFn: () => fetchManuais(),

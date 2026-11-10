@@ -1,17 +1,21 @@
 import { Fragment, useMemo, type ReactNode } from 'react'
 import { parseMarkdown, type Block, type Inline } from '@/lib/markdown'
+import { partes } from '@/lib/busca'
 
 function scrollParaId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-function inline(nodes: Inline[]): ReactNode[] {
+function inline(nodes: Inline[], hl: string[] = []): ReactNode[] {
   return nodes.map((n, i) => {
     switch (n.t) {
-      case 'text': return <Fragment key={i}>{n.v}</Fragment>
-      case 'strong': return <strong key={i} className="font-semibold text-ink-900 dark:text-white">{inline(n.c)}</strong>
-      case 'em': return <em key={i}>{inline(n.c)}</em>
-      case 'del': return <del key={i} className="opacity-70">{inline(n.c)}</del>
+      case 'text':
+        return hl.length
+          ? <Fragment key={i}>{partes(n.v, hl).map((p, k) => (p.hit ? <mark key={k} className="rounded bg-yellow-200 dark:bg-yellow-500/40 text-inherit px-0.5">{p.t}</mark> : p.t))}</Fragment>
+          : <Fragment key={i}>{n.v}</Fragment>
+      case 'strong': return <strong key={i} className="font-semibold text-ink-900 dark:text-white">{inline(n.c, hl)}</strong>
+      case 'em': return <em key={i}>{inline(n.c, hl)}</em>
+      case 'del': return <del key={i} className="opacity-70">{inline(n.c, hl)}</del>
       case 'br': return <br key={i} />
       case 'code':
         return <code key={i} className="rounded bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 text-[0.85em] font-mono text-pink-600 dark:text-pink-300">{n.v}</code>
@@ -25,7 +29,7 @@ function inline(nodes: Inline[]): ReactNode[] {
             {...(interno ? { onClick: (e: React.MouseEvent) => { e.preventDefault(); scrollParaId(decodeURIComponent(n.href.slice(1))) } }
               : { target: '_blank', rel: 'noopener noreferrer' })}
             className="text-brand-600 dark:text-brand-300 underline underline-offset-2 hover:text-brand-700 break-words">
-            {inline(n.c)}
+            {inline(n.c, hl)}
           </a>
         )
       }
@@ -42,15 +46,15 @@ const TITULO: Record<number, string> = {
   6: 'text-sm font-semibold mt-4 mb-1 text-slate-500',
 }
 
-function blocos(bs: Block[], tight = false): ReactNode[] {
+function blocos(bs: Block[], hl: string[], tight = false): ReactNode[] {
   return bs.map((b, i) => {
     switch (b.t) {
       case 'heading': {
         const Tag = `h${b.level}` as 'h1'
-        return <Tag key={i} id={b.id} className={`scroll-mt-24 text-ink-900 dark:text-white ${TITULO[b.level]}`}>{inline(b.c)}</Tag>
+        return <Tag key={i} id={b.id} className={`scroll-mt-24 text-ink-900 dark:text-white ${TITULO[b.level]}`}>{inline(b.c, hl)}</Tag>
       }
       case 'paragraph':
-        return <p key={i} className={tight ? 'leading-relaxed' : 'my-3 leading-relaxed'}>{inline(b.c)}</p>
+        return <p key={i} className={tight ? 'leading-relaxed' : 'my-3 leading-relaxed'}>{inline(b.c, hl)}</p>
       case 'code':
         return (
           <pre key={i} className="my-4 rounded-xl bg-slate-900 text-slate-100 p-4 text-sm overflow-x-auto">
@@ -61,7 +65,7 @@ function blocos(bs: Block[], tight = false): ReactNode[] {
       case 'quote':
         return (
           <blockquote key={i} className="my-4 border-l-4 border-brand-300 bg-brand-50/60 dark:bg-brand-500/10 dark:border-brand-500/40 rounded-r-lg px-4 py-2 text-slate-700 dark:text-slate-200">
-            {blocos(b.c, true)}
+            {blocos(b.c, hl, true)}
           </blockquote>
         )
       case 'hr':
@@ -74,7 +78,7 @@ function blocos(bs: Block[], tight = false): ReactNode[] {
             {b.items.map((it, k) => (
               <li key={k} className={it.checked !== null ? 'list-none -ml-6 flex items-start gap-2' : ''}>
                 {it.checked !== null && <input type="checkbox" checked={it.checked} readOnly className="mt-1.5 accent-brand-600" />}
-                <div className="min-w-0 flex-1">{blocos(it.c, true)}</div>
+                <div className="min-w-0 flex-1">{blocos(it.c, hl, true)}</div>
               </li>
             ))}
           </Tag>
@@ -87,14 +91,14 @@ function blocos(bs: Block[], tight = false): ReactNode[] {
               <thead className="bg-slate-50 dark:bg-white/5">
                 <tr>
                   {b.head.map((h, k) => (
-                    <th key={k} style={{ textAlign: b.align[k] ?? 'left' }} className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-white/10">{inline(h)}</th>
+                    <th key={k} style={{ textAlign: b.align[k] ?? 'left' }} className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-white/10">{inline(h, hl)}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {b.rows.map((r, ri) => (
                   <tr key={ri} className="border-b border-slate-100 dark:border-white/5 last:border-0">
-                    {r.map((c, k) => <td key={k} style={{ textAlign: b.align[k] ?? 'left' }} className="px-3 py-2 align-top">{inline(c)}</td>)}
+                    {r.map((c, k) => <td key={k} style={{ textAlign: b.align[k] ?? 'left' }} className="px-3 py-2 align-top">{inline(c, hl)}</td>)}
                   </tr>
                 ))}
               </tbody>
@@ -106,9 +110,10 @@ function blocos(bs: Block[], tight = false): ReactNode[] {
 }
 
 /** Mostra Markdown na tela. Nada do texto vira HTML: é seguro para conteúdo escrito por administradores. */
-export function Markdown({ source, blocks }: { source?: string; blocks?: Block[] }) {
+export function Markdown({ source, blocks, highlight }: { source?: string; blocks?: Block[]; highlight?: string[] }) {
   const arvore = useMemo(() => blocks ?? parseMarkdown(source ?? ''), [blocks, source])
-  return <div className="text-[15px] text-slate-700 dark:text-slate-200 break-words">{blocos(arvore)}</div>
+  const hl = highlight ?? []
+  return <div data-md className="text-[15px] text-slate-700 dark:text-slate-200 break-words">{blocos(arvore, hl)}</div>
 }
 
 export { scrollParaId }
