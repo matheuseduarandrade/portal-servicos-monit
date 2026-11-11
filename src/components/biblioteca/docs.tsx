@@ -13,7 +13,7 @@ import {
 } from '@/services/biblioteca'
 
 // ── Categorias ────────────────────────────────────────────────────────────────
-export const CATS_MANUAIS = ['Manuais Sistemas', 'Manuais Gerais', 'Configurações', 'Comandos']
+export const CATS_MANUAIS = ['Manuais Sistemas', 'Manuais Gerais', 'Homologações', 'Procedimentos','Configurações', 'Comandos']
 export const CATS_HOMOLOGACAO = ['Caminhões', 'Ônibus', 'Máquinas', 'Veículos Leves', 'Equipamentos Especiais']
 
 const TONE: Record<string, string> = {
